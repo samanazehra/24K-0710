@@ -1,0 +1,229 @@
+Q1
+#include <stdio.h>
+int main (){
+    float age;
+    printf("This program categorizes a person's age into four life stages. \nPlease enter a valid age:  ");
+    scanf("%f",&age);
+    if (age>0 && age<150){
+       if (age<13)
+       printf("This person is a child.\n");
+       else if (age>=13 && age<=19)
+       printf("This person is a teenager.\n");
+       else if (age>19 && age<60)
+       printf("This person is an adult.\n");
+       else printf("This person is a senior adult.");
+    }
+    else printf("Please enter a valid age. Invalid age error.");
+    return 0;
+}
+
+Q2
+#include <stdio.h>
+int main (){
+    int number;
+    printf("Please enter your number:  ");
+    scanf("%d",&number);
+    if (number>0){
+        printf("This number is a positive number.\n");
+        if (number%2==0)
+        printf("This number is an even number.\n");
+        else printf("This number is an odd number.");
+    }else if (number==0){
+        printf("This number is zero.\n");
+    }else printf("This number is a negative number.");
+    return 0;
+}
+
+Q3
+#include <stdio.h>
+int main(){
+    int number;
+    printf("Please enter your number:  ");
+    scanf("%d",&number);
+    if (number%3==0 && number%5==0)
+    printf("This number is divisible by 3 and 5.");
+    else if(number%3==0)
+    printf("This number is divisible by 3 but not 5.");
+    else if(number%5==0)
+    printf("This number is divisible by 5 but not 3.");
+    else printf("This number is not divisible by 3 and 5.");
+    return 0;
+}
+
+Q4
+#include <stdio.h>
+int main (){
+    int age;
+    char citizenship;
+    printf("Please enter your age: ");
+    scanf("%d",&age);
+    printf("\nPlease enter the initial of the country you are a resident of. (Use P for Pakistan) : ");
+    scanf(" %c",&citizenship);
+    if ((age>=18) && (citizenship=='P' || citizenship=='p'))
+    printf("Congratulations! You are eligible to vote in Pakistani elections. Use your vote wisely!");
+    else printf("Unfortunately, you are not eligible to vote in the Pakistani elections.");
+    return 0;
+}
+
+Q5
+#include <stdio.h>
+int main(){
+    int num1, num2;
+    printf("Please enter your first number:  ");
+    scanf("%d",&num1);
+    printf("Please enter your second number:  ");
+    scanf("%d",&num2);
+    (num1>num2)?printf("%d is the maximum number",num1):printf("%d is the maximum number",num2);
+    return 0;
+}
+
+Q6
+#include <stdio.h>
+int main(){
+    int number;
+    printf("Please enter your number: ");
+    scanf("%d",&number);
+    (number>=0)?((number==0)?printf("This number is zero."):printf("This number is positive.")):printf("This number is negative.");
+    return 0;
+}
+
+Q7
+#include <stdio.h>
+int main(){
+    int num1, num2;
+    printf("Please enter number 1:  ");
+    scanf("%d",&num1);
+    printf("Please enter number 2:  ");
+    scanf("%d",&num2);
+    num1=num1^num2;
+    num2=num1^num2;
+    num1=num1^num2;
+    printf("After swapping,\nnumber 1 is %d\nnumber 2 is %d",num1,num2);
+    return 0;
+}
+
+Q8
+USES A LOOP SO SIR ASKED TO EXCLUDE IT
+
+Q9
+#include <stdio.h>
+int main(){
+    int year;
+    printf("Please enter the year: ");
+    scanf("%d",&year);
+    if (year%4==0){
+       if (year%100==0){
+         if (year%400==0){
+         printf("This year is a leap year.");
+         }else printf("This year is not a leap year.");
+       }else printf("This year is a leap year.");
+     }else printf("This year is not a leap year.");  
+    return 0;
+}
+
+Q10
+USES A LOOP SO SIR ASKED TO EXCLUDE IT
+
+Q11
+#include <stdio.h>
+int main(){
+    int num1, num2, num3;
+    printf("Please enter number 1:  ");
+    scanf("%d",&num1);
+    printf("Please enter number 2:  ");
+    scanf("%d",&num2);
+    printf("Please enter number 3:  ");
+    scanf("%d",&num3);
+    if (num1>num2){
+      if (num1>num3){
+          printf("The greatest number is %d",num1);
+      }else printf("The greatest number is %d",num3);
+      }else if (num2>num1){
+          if (num2>num3){
+              printf("The greatest number is %d",num2);
+              }else printf("The greatest number is %d",num3);
+      }else printf("%d is equal to %d",num1,num2);        
+      
+    return 0;
+}
+
+Q12
+#include <stdio.h>
+int main (){
+    float e1, e2, e3, e4, e5, examscore, a1, a2, a3, a4, a5, assignscore, netscore;
+    int attendance;
+    printf("Please enter your overall attendance percentage:  ");
+    scanf("%d",&attendance);
+    printf("Please enter the marks you scored out of 80 in your programming exam: ");
+    scanf("%f",&e1);
+    printf("Please enter the marks you scored out of 80 in your english exam: ");
+    scanf("%f",&e2);
+    printf("Please enter the marks you scored out of 80 in your calculus exam: ");
+    scanf("%f",&e3);
+    printf("Please enter the marks you scored out of 80 in your physics exam: ");
+    scanf("%f",&e4);
+    printf("Please enter the marks you scored out of 80 in your pakistan studies exam: ");
+    scanf("%f",&e5);
+    printf("Please enter the marks you scored out of 20 in your programming assignment: ");
+    scanf("%f",&a1);
+    printf("Please enter the marks you scored out of 20 in your english assignment: ");
+    scanf("%f",&a2);
+    printf("Please enter the marks you scored out of 20 in your calculus assignment: ");
+    scanf("%f",&a3);
+    printf("Please enter the marks you scored out of 20 in your physics assignment: ");
+    scanf("%f",&a4);
+    printf("Please enter the marks you scored out of 20 in your pakistan studies assignment: ");
+    scanf("%f",&a5);
+    examscore=(e1+e2+e3+e4+e5)/5;
+    assignscore=(a1+a2+a3+a4+a5)/5;
+    netscore=examscore+assignscore;
+    if (attendance>=75 && attendance<=100){
+        if(netscore>=90){
+            printf("Congratulations! Your overall grade for this semester is A*!");
+        }else if(netscore>=85){
+            printf("Congratulations! Your overall grade for this semester is A!");
+        }else if(netscore>=80){
+            printf("Congratulations! Your overall grade for this semester is B+!");
+        }else if(netscore>=75){
+            printf("Your overall grade for this semester is B.");
+        }else if(netscore>=65){
+            printf("Your overall grade for this semester is C.");
+        }else if(netscore>=60){
+            printf("Your overall grade for this semester is C-.");
+        }else if(netscore>=50){
+            printf("Your overall grade for this semester is D.");
+        }else printf("Unfortunately, you scored less than 50 percent in your finals. You need to retake this semester. Work hard, better luck next time!");
+    }else printf("Unfortunately, you did not pass the criteria for minimum attendance to pass this semester. Please contact the admissions office.");
+    return 0;
+}
+
+Q13
+#include <stdio.h>
+int main(){
+    char character,encryption,decryption;
+    printf("Please enter the character you want to encrypt and decrypt:  ");
+    scanf("%c",&character);
+    encryption=character^1;
+    decryption=encryption^1;
+    printf("Your original character was %c.\n",character);
+    printf("Your character after encryption is %c.\n",encryption);
+    printf("Your character after decryption is %c.",decryption);
+    return 0;
+}
+
+Q14
+#include <stdio.h>
+int main(){
+    float age, creditscore, annualincome;
+    printf("Dear customer, please enter your age in years:  ");
+    scanf("%f",&age);
+    printf("Dear customer, please enter your annual income in dollars:  ");
+    scanf("%f",&annualincome);
+    printf("Dear customer, please enter your credit score, ranging from 0 to 100:  ");
+    scanf("%f",&creditscore);
+    if (age>=18 && annualincome>=20000 && creditscore>=60){
+        printf("Congratulations dear customer! You are eligible for a loan upto 10,000 dollars!");
+    }else printf("Sorry, you are not eligible to receive a loan.");
+    return 0;
+}
+
