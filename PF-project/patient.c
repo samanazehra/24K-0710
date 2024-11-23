@@ -37,7 +37,7 @@ void addPatient(FILE *file) {
 
     printf("Enter Patient's Disease: ");
     fgets(New_Patient.disease, sizeof(New_Patient.disease), stdin);
-    New_Patient.disease[strcspn(NewPatient.disease, "\n")] = 0;
+    New_Patient.disease[strcspn(New_Patient.disease, "\n")] = 0;
 
     printf("Enter Duration of Admission (in days): ");
     scanf("%d", & New_Patient.duration);
