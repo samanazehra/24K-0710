@@ -139,3 +139,43 @@ void viewPatients(FILE *file) {
     }
 }
 
+void deletePatient(FILE *file) {
+    struct Patient patient;
+    int patientID, found = 0;
+    printf("Enter Patient ID to delete: ");
+    scanf("%d", & patientID);
+
+    FILE *tempFile = fopen("temp.dat", "wb");
+    if (!tempFile) {
+        printf("Error opening temporary file!\n");
+        return;
+    }
+
+    rewind(file);
+    int position = 0; 
+    while (fread(& patient, sizeof(struct Patient), 1, file)) {
+        if (patient.patient_ID == patientID && !found) {
+            found = 1;  
+            continue;
+        }
+      
+        fwrite(&patient, sizeof(struct Patient), 1, tempFile);
+    }
+
+    if (!found) {
+        printf("Patient not found.\n");
+    } else {
+        printf("Patient record deleted successfully.\n");
+    }
+
+    fclose(file);
+    fclose(tempFile);
+    remove("patients.dat");
+    rename("temp.dat", "patients.dat");
+
+    file = fopen("patients.dat", "rb+");
+    if (!file) {
+        printf("Error reopening file!\n");
+    }
+}
+
