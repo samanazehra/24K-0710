@@ -118,4 +118,44 @@ void viewDoctors(FILE *file) {
     }
 }
 
+void deleteDoctor(FILE *file) {
+    struct Doctor doctor;
+    int doctorID, found = 0;
+    printf("Enter Doctor ID to delete: ");
+    scanf("%d", &doctorID);
+
+    FILE *tempFile = fopen("temp.dat", "wb");
+    if (!tempFile) {
+        printf("Error opening temporary file!\n");
+        return;
+    }
+
+    rewind(file);
+    while (fread(&doctor, sizeof(struct Doctor), 1, file)) {
+        if (doctor.doctorID == doctorID && !found) {
+            found = 1;  
+            continue;
+        }
+        fwrite(&doctor, sizeof(struct Doctor), 1, tempFile);
+    }
+
+    if (!found) {
+        printf("Doctor not found.\n");
+    } else {
+        printf("Doctor record deleted successfully.\n");
+    }
+
+    fclose(file);
+    fclose(tempFile);
+    remove("doctors.dat");
+    rename("temp.dat", "doctors.dat");
+
+    file = fopen("doctors.dat", "rb+");
+    if (!file) {
+        printf("Error reopening file!\n");
+    }
+}
+
+
+
 
