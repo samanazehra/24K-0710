@@ -8,13 +8,13 @@ struct Patient {
     int age;
     char gender[10];
     char disease[200];
-    int duration;  // Duration (days) of admission 
+    int duration; 
     int bp;  
     int pulse;  
     char medicineTimings[200];  
     int medicineQuantity;   
     char doctor[100]; 
-    int surgery;  // Surgery flag (0 = no surgery, 1 = surgery done)
+    char surgery[100]; 
 };
 
 void addPatient(FILE *file) {
@@ -60,8 +60,9 @@ void addPatient(FILE *file) {
     fgets(New_Patient.doctor, sizeof(New_Patient.doctor), stdin);
     New_Patient.doctor[strcspn(New_Patient.doctor, "\n")] = 0;
 
-    printf("Has any Surgery been performed? (0 = No, 1 = Yes): ");
-    scanf("%d", & New_Patient.surgery);
+    printf("Name any surgery that has been performed: ");
+    fgets(New_Patient.surgery, sizeof(New_Patient.surgery), stdin);
+    New_Patient.surgery[strcspn(New_Patient.surgery, "\n")] = 0;
 
     fwrite(& New_Patient, sizeof(struct Patient), 1, file);
 }
@@ -72,7 +73,7 @@ void updatePatient(FILE *file) {
     printf("Enter Patient ID to update: ");
     scanf("%d", &patientID);
     
-    FILE *tempFile = fopen("temp.dat", "wb");
+    FILE *tempFile = fopen("temp.txt", "w");
     if (!tempFile) {
         printf("Error opening file!\n");
         return;
@@ -98,8 +99,9 @@ void updatePatient(FILE *file) {
                 patient.medicineTimings[strcspn(patient.medicineTimings, "\n")] = 0;
             }
 
-            printf("Has any Surgery been performed? (current: %s, 0 = No, 1 = Yes): ", patient.surgery ? "Yes" : "No");
-            scanf("%d", & patient.surgery);
+            printf("Name any new surgery that has been performed: ");
+            fgets(New_Patient.surgery, sizeof(New_Patient.surgery), stdin);
+            New_Patient.surgery[strcspn(New_Patient.surgery, "\n")] = 0;
         }
         fwrite(&patient, sizeof(struct Patient), 1, tempFile);
     }
@@ -110,10 +112,10 @@ void updatePatient(FILE *file) {
 
     fclose(file);
     fclose(tempFile);
-    remove("patients.dat");
-    rename("temp.dat", "patients.dat");
+    remove("patients.txt");
+    rename("temp.txt", "patients.txt");
 
-    file = fopen("patients.dat", "rb+");
+    file = fopen("patients.txt", "r+");
     if (!file) {
         printf("Error reopening file!\n");
     }
@@ -134,7 +136,7 @@ void viewPatients(FILE *file) {
         printf("Medicine Timings: %s\n", patient.medicineTimings);
         printf("Medicine Quantity: %d\n", patient.medicineQuantity);
         printf("Doctor: %s\n", patient.doctor);
-        printf("Surgery: %s\n", patient.surgery? "Yes" : "No");
+        printf("Surgery: %s\n", patient.surgery);
         printf("------------------------------\n");
     }
 }
@@ -145,7 +147,7 @@ void deletePatient(FILE *file) {
     printf("Enter Patient ID to delete: ");
     scanf("%d", & patientID);
 
-    FILE *tempFile = fopen("temp.dat", "wb");
+    FILE *tempFile = fopen("temp.txt", "w");
     if (!tempFile) {
         printf("Error opening temporary file!\n");
         return;
@@ -171,10 +173,10 @@ void deletePatient(FILE *file) {
 
     fclose(file);
     fclose(tempFile);
-    remove("patients.dat");
-    rename("temp.dat", "patients.dat");
+    remove("patients.txt");
+    rename("temp.txt", "patients.txt");
 
-    file = fopen("patients.dat", "rb+");
+    file = fopen("patients.txt", "r+");
     if (!file) {
         printf("Error reopening file!\n");
     }
