@@ -5,7 +5,7 @@ struct admins
 {
     char username[20];
     char password[20];
-} admin, newadmin, entered;
+} admin, newadmin, entered, tem;
 
 struct staff
 {
@@ -37,6 +37,48 @@ int adminvalidation(char *username, char *password)
     return 0;
 }
 
+int doesuserexist(char *username)
+{
+    FILE *fp;
+    fp = fopen("Users.txt", "r+");
+    if (fp == NULL)
+    {
+        return 0;
+    }
+    while (fscanf(fp, "%*s %s %*s", temp.username) != EOF)
+    {
+        if (strcmp(username, temp.username) == 0)
+        {
+            printf("Username %s already exists. Please try a different username. \n", user.username);
+            fclose(fp);
+            return 1;
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
+int doesadminexist(char *username)
+{
+    FILE *fp;
+    fp = fopen("Admin.txt", "r+");
+    if (fp == NULL)
+    {
+        return 0;
+    }
+    while (fscanf(fp, "%s %*s", tem.username) != EOF)
+    {
+        if (strcmp(username, tem.username) == 0)
+        {
+            printf("Admin Username %s already exists. Please try a different username. \n", admin.username);
+            fclose(fp);
+            return 1;
+        }
+    }
+    fclose(fp);
+    return 0;
+}
+
 void adminsignup()
 {
     printf("==Welcome to the admin signup portal. Only admins can sign up new admins.==\n");
@@ -56,7 +98,12 @@ void adminsignup()
         {
             return;
         }
-        fprintf(fp, "%s %s", newadmin.username, newadmin.password);
+        if (doesadminexist(entered.username))
+        {
+            fclose(fp);
+            return;
+        }
+        fprintf(fp, "%s %s\n", newadmin.username, newadmin.password);
         printf("New admin registered. Welcome %s!\n", newadmin.username);
 
         fclose(fp);
@@ -75,6 +122,7 @@ void signup()
         fp = fopen("Users.txt", "a+");
         if (fp == NULL)
         {
+            printf("Error: Unable to open Users.txt.\n");
             return;
         }
         printf("Enter new user's job role (doctor/nurse): ");
@@ -83,10 +131,17 @@ void signup()
         scanf("%s", user.username);
         printf("Enter new user's password: ");
         scanf("%s", user.password);
-        fprintf(fp, "%s %s %s", user.job, user.username, user.password);
+        if (doesuserexist(user.username))
+        {
+            fclose(fp);
+            return;
+        }
+        fprintf(fp, "%s %s %s\n", user.job, user.username, user.password);
         printf("New user successfully registered! Welcome %s %s!\n", user.job, user.username);
         fclose(fp);
     }
+    else
+        printf("Wrong admin username or password.");
 }
 void loginportal()
 {
@@ -95,6 +150,7 @@ void loginportal()
     fp = fopen("Users.txt", "r+");
     if (fp == NULL)
     {
+        printf("Error: Unable to open Users.txt.\n");
         return;
     }
     printf("Enter job role (doctor/nurse): ");
@@ -118,6 +174,7 @@ void loginportal()
     }
     fclose(fp);
 }
+
 int main()
 {
     int choice;
