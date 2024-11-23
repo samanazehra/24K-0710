@@ -180,3 +180,107 @@ void deletePatient(FILE *file) {
     }
 }
 
+struct Doctor {
+    int doctorID;
+    char name[100];
+    int age;
+    char address[100];
+    char specialization[50];
+    char contactNumber[20];
+    int patientsAttending;
+};
+
+
+void assignDoctorToPatient(FILE *file, FILE *doctorFile) {
+
+    struct Patient patient;
+    struct Doctor doctor;
+    int patientID, doctorID, foundPatient = 0, foundDoctor = 0;
+
+    printf("Enter Patient ID to assign doctor: ");
+    scanf("%d", &patientID);
+    
+    printf("Enter Doctor ID to assign: ");
+    scanf("%d", &doctorID);
+
+    rewind(doctorFile);
+    while (fread(&doctor, sizeof(struct Doctor), 1, doctorFile)) {
+        if (doctor.doctorID == doctorID) {
+            foundDoctor = 1;
+            break;
+        }
+    }
+
+    if (!foundDoctor) {
+        printf("Doctor with ID %d not found.\n", doctorID);
+        return;
+    }
+
+    rewind(file);
+    FILE *tempFile = fopen("temp.dat", "wb");
+    if (!tempFile) {
+        printf("Error opening temporary file!\n");
+        return;
+    }
+
+    while (fread(&patient, sizeof(struct Patient), 1, file)) {
+        if (patient.patient_ID == patientID) {
+            foundPatient = 1;
+            
+            if (strlen(patient.doctor) > 0) {
+                printf("This patient already has a doctor assigned: %s. Doctor not available for reassignment.\n", patient.doctor);
+                fclose(tempFile);
+                return;
+            }
+
+            if (doctor.patientsAttending >= 5) {
+                printf("Doctor %s is already attending to the maximum number of patients. Cannot assign more.\n", doctor.name);
+                fclose(tempFile);
+                return;
+            }
+
+            strcpy(patient.doctor, doctor.name);  
+            doctor.patientsAttending++;  
+
+            printf("Doctor %s has been assigned to Patient %d.\n", doctor.name, patientID);
+        }
+        fwrite(&patient, sizeof(struct Patient), 1, tempFile);  
+    }
+
+    if (!foundPatient) {
+        printf("Patient with ID %d not found.\n", patientID);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove("patients.dat");
+    rename("temp.dat", "patients.dat");
+
+    file = fopen("patients.dat", "rb+");
+    if (!file) {
+        printf("Error reopening patient file!\n");
+    }
+
+    FILE *tempDoctorFile = fopen("temp_doctor.dat", "wb");
+    if (!tempDoctorFile) {
+        printf("Error opening temporary doctor file!\n");
+        return;
+    }
+
+    rewind(doctorFile);
+    while (fread(&doctor, sizeof(struct Doctor), 1, doctorFile)) {
+        if (doctor.doctorID == doctorID) {
+            fwrite(&doctor, sizeof(struct Doctor), 1, tempDoctorFile); 
+        } else {
+            fwrite(&doctor, sizeof(struct Doctor), 1, tempDoctorFile);
+        }
+    }
+
+    fclose(doctorFile);
+    fclose(tempDoctorFile);
+    remove("doctors.dat");
+    rename("temp_doctor.dat", "doctors.dat");  
+}
+
+
