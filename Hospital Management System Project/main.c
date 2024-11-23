@@ -20,18 +20,18 @@ int adminvalidation(char *username, char *password)
     fp = fopen("Admin.txt", "r+");
     if (fp == NULL)
     {
-        return;
+        return -1;
     }
-    while (fscanf(fp, % s % s, admin.username, admin.password) != EOF)
+    while (fscanf(fp, "%s %s", admin.username, admin.password) != EOF)
     {
         if (strcmp(username, admin.username) == 0 && strcmp(password, admin.password) == 0)
         {
-            printf("Admin login successful, welcome %s", admin.username);
+            printf("Admin login successful, welcome %s\n", admin.username);
             fclose(fp);
             return 1;
         }
         else
-            printf("Wrong username or password. Access denied.");
+            printf("Wrong username or password. Access denied.\n");
     }
     fclose(fp);
     return 0;
@@ -44,7 +44,6 @@ void adminsignup()
     scanf("%s", entered.username);
     printf("Enter admin password: ");
     scanf("%s", entered.password);
-    adminvalidation(entered.username, entered.password);
     if (adminvalidation(entered.username, entered.password))
     {
         printf("Enter new admin's username: ");
@@ -57,7 +56,8 @@ void adminsignup()
         {
             return;
         }
-        fprintf(fp, "\n%s\n%s", newadmin.username, newadmin.password);
+        fprintf(fp, "%s %s", newadmin.username, newadmin.password);
+        printf("New admin registered. Welcome %s!\n", newadmin.username);
 
         fclose(fp);
     }
@@ -69,7 +69,6 @@ void signup()
     scanf("%s", entered.username);
     printf("Enter admin password: ");
     scanf("%s", entered.password);
-    adminvalidation(entered.username, entered.password);
     if (adminvalidation(entered.username, entered.password))
     {
         FILE *fp;
@@ -84,8 +83,9 @@ void signup()
         scanf("%s", user.username);
         printf("Enter new user's password: ");
         scanf("%s", user.password);
-        fprintf(fp, "\n%s\n%s\n%s", user.job, user.username, user.password);
-        printf("New user successfully registered.");
+        fprintf(fp, "%s %s %s", user.job, user.username, user.password);
+        printf("New user successfully registered! Welcome %s %s!\n", user.job, user.username);
+        fclose(fp);
     }
 }
 void loginportal()
@@ -111,12 +111,40 @@ void loginportal()
             login = 1;
             break;
         }
-    }if (!login) {
+    }
+    if (!login)
+    {
         printf("Invalid username or password. Please try again.\n");
     }
     fclose(fp);
 }
 int main()
 {
-    signup();
+    int choice;
+    printf("===San Jose St. Bonaventure Hospital Portal===\n");
+    while (1)
+    {
+        printf("1. User Login Portal\n2. New User Signup\n3. New Admin Signup\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        switch (choice)
+        {
+        case 1:
+            loginportal();
+            break;
+        case 2:
+            signup();
+            break;
+        case 3:
+            adminsignup();
+            break;
+        case 4:
+            exit(0);
+            break;
+        default:
+            printf("Invalid choice. ");
+            break;
+        }
+    }
+    return 0;
 }
