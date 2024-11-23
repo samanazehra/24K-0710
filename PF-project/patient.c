@@ -219,7 +219,7 @@ void assignDoctorToPatient(FILE *file, FILE *doctorFile) {
     }
 
     rewind(file);
-    FILE *tempFile = fopen("temp.dat", "wb");
+    FILE *tempFile = fopen("temp.txt", "w");
     if (!tempFile) {
         printf("Error opening temporary file!\n");
         return;
@@ -256,15 +256,15 @@ void assignDoctorToPatient(FILE *file, FILE *doctorFile) {
     fclose(file);
     fclose(tempFile);
 
-    remove("patients.dat");
-    rename("temp.dat", "patients.dat");
+    remove("patients.txt");
+    rename("temp.txt", "patients.txt");
 
-    file = fopen("patients.dat", "rb+");
+    file = fopen("patients.txt", "r+");
     if (!file) {
         printf("Error reopening patient file!\n");
     }
 
-    FILE *tempDoctorFile = fopen("temp_doctor.dat", "wb");
+    FILE *tempDoctorFile = fopen("temp_doctor.txt", "w");
     if (!tempDoctorFile) {
         printf("Error opening temporary doctor file!\n");
         return;
@@ -281,8 +281,8 @@ void assignDoctorToPatient(FILE *file, FILE *doctorFile) {
 
     fclose(doctorFile);
     fclose(tempDoctorFile);
-    remove("doctors.dat");
-    rename("temp_doctor.dat", "doctors.dat");  
+    remove("doctors.txt");
+    rename("temp_doctor.txt", "doctors.txt");  
 }
 
 
