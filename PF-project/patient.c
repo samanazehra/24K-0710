@@ -156,6 +156,7 @@ void deletePatient(FILE *file) {
     while (fread(& patient, sizeof(struct Patient), 1, file)) {
         if (patient.patient_ID == patientID && !found) {
             found = 1;  
+            printf("Patient ID %d has been discharged.\n", patientID);
             continue;
         }
       
