@@ -3,9 +3,9 @@
 #include <string.h>
 
 void generateDailyReport() {
-    FILE *patientsFile = fopen("patients.txt", "r");
+    FILE *fp = fopen("patients.txt", "r");
     
-    if (!patientsFile) {
+    if (fp==NULL) {
         printf("Error opening patients file!\n");
         return;
     }
