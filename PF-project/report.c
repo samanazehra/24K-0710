@@ -44,7 +44,7 @@ void generateDailyReport() {
         }
     }
 
-    fclose(patientsFile);
+    fclose(fp);
 
     printf("------- Daily Report for %s -------\n", reportDate);
     printf("Total Patients Admitted Today: %d\n", totalPatientsAdmitted);
