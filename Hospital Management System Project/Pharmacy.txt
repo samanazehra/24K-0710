@@ -1,4 +1,4 @@
-1 panadol med 60 300.00 sys
+1 panadol med 70 300.00 sys
 2 saniplast med 500 200.00 hamdard
 3 zyrtec med 70 100.00 abbott
 4 gavisco med 50 20.00 sys

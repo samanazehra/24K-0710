@@ -5,6 +5,10 @@
 
 FILE *fp;
 
+void doctormenu(int doctorchoice);
+void patientmenu(int patientchoice);
+void pharmacymenu(int choice);
+
 struct admins
 {
     char username[20];
@@ -23,26 +27,27 @@ struct Doctor
     int doctorID;
     char name[100];
     int age;
-    char address[100];
-    char specialization[50];
+    char address[200];
+    char specialization[100];
     char contactNumber[20];
     int patientsAttending;
 } doctor;
 
 struct Patient
 {
-    int patient_ID;
+    int patientID;
     char name[100];
     int age;
     char gender[10];
-    char disease[200];
-    int duration;
-    int bp;
-    int pulse;
-    char medicineTimings[200];
+    char disease[100];
+    int durationOfDays;
+    float bp;
+    float pulseRate;
+    char medicineTimings[100];
     int medicineQuantity;
-    char doctor[100];
-    char surgery[100];
+    char doctorAttending[100];
+    int surgeryDone;
+    char surgeryName[100];
 } patient;
 
 struct pharmacyitem
@@ -55,13 +60,754 @@ struct pharmacyitem
     char manufacturer[100];
 } item;
 
+void generatedailyreport()
+{
+    FILE *fp = fopen("dates.txt", "r");
+
+    if (fp == NULL)
+    {
+        printf("Error opening patients file!\n");
+        return;
+    }
+
+    int totalPatientsAdmitted = 0;
+    int totalPatientsInHospital = 0;
+    int totalSurgeriesToday = 0;
+    int totalPatientsDischarged = 0;
+
+    char reportDate[11];
+    printf("Enter the date for the report (dd-mm-yyyy): ");
+    scanf("%s", reportDate);
+
+    int patientID, surgerycost, totalrevenue=0, count=0;
+    char admissionDate[11], dischargeDate[11], surgeryDate[11];
+
+    while (fscanf(fp, "%d %s %s %s %d", &patientID, admissionDate, dischargeDate, surgeryDate, &surgerycost) != EOF)
+    {
+        count++;
+        if (strcmp(admissionDate, reportDate) == 0)
+        {
+            totalPatientsAdmitted++;
+        }
+
+        if (strcmp(dischargeDate, reportDate) == 0)
+        {
+            totalPatientsDischarged++;
+        }
+
+        if (strcmp(dischargeDate, "00-00-0000") == 0 || strlen(dischargeDate) == 0)
+        {
+            totalPatientsInHospital++;
+        }
+        for (int i = 0; i < count; i++)
+        {   totalrevenue=0;
+            totalrevenue+=surgerycost;
+        }
+        
+    }
+
+    fclose(fp);
+
+    printf("------- Daily Report for %s -------\n", reportDate);
+    printf("Total Patients Admitted Today: %d\n", totalPatientsAdmitted);
+    printf("Total Patients in the Hospital: %d\n", totalPatientsInHospital);
+    printf("Total Surgeries Performed Today: %d\n", totalSurgeriesToday);
+    printf("Total Patients Discharged Today: %d\n", totalPatientsDischarged);
+    printf("Total Revenue Generated Today: Rs. %d\n", totalrevenue);
+    printf("-----------------------------------------\n");
+}
+
+void addDoctor()
+{
+    fp = fopen("doctors.txt", "a");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    printf("Enter Doctor ID: ");
+    scanf("%d", &doctor.doctorID);
+    getchar();
+
+    printf("Enter Name: ");
+    fgets(doctor.name, sizeof(doctor.name), stdin);
+    doctor.name[strcspn(doctor.name, "\n")] = 0;
+
+    printf("Enter Age: ");
+    scanf("%d", &doctor.age);
+    getchar();
+
+    printf("Enter Address: ");
+    fgets(doctor.address, sizeof(doctor.address), stdin);
+    doctor.address[strcspn(doctor.address, "\n")] = 0;
+
+    printf("Enter Specialization: ");
+    fgets(doctor.specialization, sizeof(doctor.specialization), stdin);
+    doctor.specialization[strcspn(doctor.specialization, "\n")] = 0;
+
+    printf("Enter Contact Number: ");
+    fgets(doctor.contactNumber, sizeof(doctor.contactNumber), stdin);
+    doctor.contactNumber[strcspn(doctor.contactNumber, "\n")] = 0;
+
+    printf("Enter Number of Patients Attending: ");
+    scanf("%d", &doctor.patientsAttending);
+
+    fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n",
+            doctor.doctorID, doctor.name, doctor.age, doctor.address,
+            doctor.specialization, doctor.contactNumber, doctor.patientsAttending);
+
+    fclose(fp);
+}
+
+void readDoctors()
+{
+    fp = fopen("doctors.txt", "r");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp))
+    {
+        printf("%s", line);
+    }
+
+    fclose(fp);
+}
+
+void updateDoctor()
+{
+    FILE *fp;
+    struct Doctor doctorArray[100];
+    int doctorCount = 0;
+    int searchID;
+    int found = 0;
+    int choice;
+
+    fp = fopen("doctors.txt", "r+");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n",
+                  &doctorArray[doctorCount].doctorID, doctorArray[doctorCount].name,
+                  &doctorArray[doctorCount].age, doctorArray[doctorCount].address,
+                  doctorArray[doctorCount].specialization, doctorArray[doctorCount].contactNumber,
+                  &doctorArray[doctorCount].patientsAttending) != EOF)
+    {
+        doctorCount++;
+    }
+
+    printf("Enter Doctor ID to update: ");
+    scanf("%d", &searchID);
+    getchar();
+
+    for (int i = 0; i < doctorCount; i++)
+    {
+        if (doctorArray[i].doctorID == searchID)
+        {
+            printf("Doctor found! Updating information...\n");
+
+            do
+            {
+                printf("\nWhich field do you want to update?\n");
+                printf("1. Name\n");
+                printf("2. Age\n");
+                printf("3. Address\n");
+                printf("4. Specialization\n");
+                printf("5. Contact Number\n");
+                printf("6. Number of Patients Attending\n");
+                printf("Enter your choice (1-6): ");
+                scanf("%d", &choice);
+                getchar();
+
+                switch (choice)
+                {
+                case 1:
+                    printf("Enter new Name: ");
+                    fgets(doctorArray[i].name, sizeof(doctorArray[i].name), stdin);
+                    doctorArray[i].name[strcspn(doctorArray[i].name, "\n")] = 0;
+                    break;
+                case 2:
+                    printf("Enter new Age: ");
+                    scanf("%d", &doctorArray[i].age);
+                    getchar();
+                    break;
+                case 3:
+                    printf("Enter new Address: ");
+                    fgets(doctorArray[i].address, sizeof(doctorArray[i].address), stdin);
+                    doctorArray[i].address[strcspn(doctorArray[i].address, "\n")] = 0;
+                    break;
+                case 4:
+                    printf("Enter new Specialization: ");
+                    fgets(doctorArray[i].specialization, sizeof(doctorArray[i].specialization), stdin);
+                    doctorArray[i].specialization[strcspn(doctorArray[i].specialization, "\n")] = 0;
+                    break;
+                case 5:
+                    printf("Enter new Contact Number: ");
+                    fgets(doctorArray[i].contactNumber, sizeof(doctorArray[i].contactNumber), stdin);
+                    doctorArray[i].contactNumber[strcspn(doctorArray[i].contactNumber, "\n")] = 0;
+                    break;
+                case 6:
+                    printf("Enter new Number of Patients Attending: ");
+                    scanf("%d", &doctorArray[i].patientsAttending);
+                    getchar();
+                    break;
+                default:
+                    printf("Invalid choice. Please try again.\n");
+                    continue;
+                }
+
+                printf("Do you want to update another field? (1 for Yes, 0 for No): ");
+                scanf("%d", &choice);
+                getchar();
+
+            } while (choice == 1);
+
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        printf("Doctor with ID %d not found.\n", searchID);
+    }
+    else
+    {
+
+        freopen("doctors.txt", "w", fp);
+        for (int i = 0; i < doctorCount; i++)
+        {
+            fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n",
+                    doctorArray[i].doctorID, doctorArray[i].name, doctorArray[i].age, doctorArray[i].address,
+                    doctorArray[i].specialization, doctorArray[i].contactNumber, doctorArray[i].patientsAttending);
+        }
+        printf("Doctor information updated successfully.\n");
+    }
+
+    fclose(fp);
+}
+
+void deleteDoctor()
+{
+    FILE *fp;
+    struct Doctor doctorArray[100];
+    int doctorCount = 0;
+    int searchID;
+    int found = 0;
+
+    fp = fopen("doctors.txt", "r+");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n",
+                  &doctorArray[doctorCount].doctorID, doctorArray[doctorCount].name,
+                  &doctorArray[doctorCount].age, doctorArray[doctorCount].address,
+                  doctorArray[doctorCount].specialization, doctorArray[doctorCount].contactNumber,
+                  &doctorArray[doctorCount].patientsAttending) != EOF)
+    {
+        doctorCount++;
+    }
+
+    printf("Enter Doctor ID to delete: ");
+    scanf("%d", &searchID);
+
+    for (int i = 0; i < doctorCount; i++)
+    {
+        if (doctorArray[i].doctorID == searchID)
+        {
+            found = 1;
+            for (int j = i; j < doctorCount - 1; j++)
+            {
+                doctorArray[j] = doctorArray[j + 1];
+            }
+            doctorCount--;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        printf("Doctor with ID %d not found.\n", searchID);
+    }
+    else
+    {
+        freopen("doctors.txt", "w", fp);
+        for (int i = 0; i < doctorCount; i++)
+        {
+            fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n",
+                    doctorArray[i].doctorID, doctorArray[i].name, doctorArray[i].age, doctorArray[i].address,
+                    doctorArray[i].specialization, doctorArray[i].contactNumber, doctorArray[i].patientsAttending);
+        }
+        printf("Doctor deleted successfully.\n");
+    }
+
+    fclose(fp);
+}
+
+void addPatient()
+{
+    fp = fopen("patients.txt", "a");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    printf("Enter Patient ID: ");
+    scanf("%d", &patient.patientID);
+    getchar();
+
+    printf("Enter Name: ");
+    fgets(patient.name, sizeof(patient.name), stdin);
+    patient.name[strcspn(patient.name, "\n")] = 0;
+
+    printf("Enter Age: ");
+    scanf("%d", &patient.age);
+    getchar();
+
+    printf("Enter Gender: ");
+    fgets(patient.gender, sizeof(patient.gender), stdin);
+    patient.gender[strcspn(patient.gender, "\n")] = 0;
+
+    printf("Enter Disease: ");
+    fgets(patient.disease, sizeof(patient.disease), stdin);
+    patient.disease[strcspn(patient.disease, "\n")] = 0;
+
+    printf("Enter Duration of Days Admitted: ");
+    scanf("%d", &patient.durationOfDays);
+
+    printf("Enter Blood Pressure: ");
+    scanf("%f", &patient.bp);
+
+    printf("Enter Pulse Rate: ");
+    scanf("%f", &patient.pulseRate);
+    getchar();
+
+    printf("Enter Medicine Timings: ");
+    fgets(patient.medicineTimings, sizeof(patient.medicineTimings), stdin);
+    patient.medicineTimings[strcspn(patient.medicineTimings, "\n")] = 0;
+
+    printf("Enter Medicine Quantity: ");
+    scanf("%d", &patient.medicineQuantity);
+    getchar();
+
+    printf("Enter Doctor Attending: ");
+    fgets(patient.doctorAttending, sizeof(patient.doctorAttending), stdin);
+    patient.doctorAttending[strcspn(patient.doctorAttending, "\n")] = 0;
+
+    printf("Was surgery performed (1 for Yes, 0 for No): ");
+    scanf("%d", &patient.surgeryDone);
+
+    if (patient.surgeryDone == 1)
+    {
+        printf("Enter Surgery Name: ");
+        getchar();
+        fgets(patient.surgeryName, sizeof(patient.surgeryName), stdin);
+        patient.surgeryName[strcspn(patient.surgeryName, "\n")] = 0;
+    }
+
+    fprintf(fp, "Patient ID: %d\nName: %s\nAge: %d\nGender: %s\nDisease: %s\nDuration of Days: %d\nBlood Pressure: %.2f\nPulse Rate: %.2f\nMedicine Timings: %s\nMedicine Quantity: %d\nDoctor Attending: %s\nSurgery Done: %d\nSurgery Name: %s\n\n",
+            patient.patientID, patient.name, patient.age, patient.gender,
+            patient.disease, patient.durationOfDays, patient.bp, patient.pulseRate,
+            patient.medicineTimings, patient.medicineQuantity, patient.doctorAttending,
+            patient.surgeryDone, patient.surgeryDone == 1 ? patient.surgeryName : "None");
+
+    fclose(fp);
+}
+
+void readPatients()
+{
+    fp = fopen("patients.txt", "r");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp))
+    {
+        printf("%s", line);
+    }
+
+    fclose(fp);
+}
+
+void updatePatient()
+{
+    struct Patient patientArray[100];
+    int patientCount = 0;
+    int searchID;
+    int found = 0;
+    int choice;
+
+    fp = fopen("patients.txt", "r");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    while (fscanf(fp, "Patient ID: %d\nName: %[^\n]\nAge: %d\nGender: %[^\n]\nDisease: %[^\n]\nDuration of Days: %d\nBlood Pressure: %f\nPulse Rate: %f\nMedicine Timings: %[^\n]\nMedicine Quantity: %d\nDoctor Attending: %[^\n]\nSurgery Done: %d\nSurgery Name: %[^\n]\n\n",
+                  &patientArray[patientCount].patientID, patientArray[patientCount].name,
+                  &patientArray[patientCount].age, patientArray[patientCount].gender,
+                  patientArray[patientCount].disease, &patientArray[patientCount].durationOfDays,
+                  &patientArray[patientCount].bp, &patientArray[patientCount].pulseRate,
+                  patientArray[patientCount].medicineTimings, &patientArray[patientCount].medicineQuantity,
+                  patientArray[patientCount].doctorAttending, &patientArray[patientCount].surgeryDone,
+                  patientArray[patientCount].surgeryName) != EOF)
+    {
+        patientCount++;
+    }
+    fclose(fp);
+
+    printf("Enter Patient ID to update: ");
+    scanf("%d", &searchID);
+    getchar();
+
+    for (int i = 0; i < patientCount; i++)
+    {
+        if (patientArray[i].patientID == searchID)
+        {
+            found = 1;
+            printf("Patient found! Updating information...\n");
+
+            do
+            {
+                printf("\nWhich field do you want to update?\n");
+                printf("1. Name\n");
+                printf("2. Age\n");
+                printf("3. Gender\n");
+                printf("4. Disease\n");
+                printf("5. Duration of Days\n");
+                printf("6. Blood Pressure\n");
+                printf("7. Pulse Rate\n");
+                printf("8. Medicine Timings\n");
+                printf("9. Medicine Quantity\n");
+                printf("10. Doctor Attending\n");
+                printf("11. Surgery Done\n");
+                printf("12. Surgery Name (if applicable)\n");
+                printf("Enter your choice (1-12): ");
+                scanf("%d", &choice);
+                getchar();
+
+                switch (choice)
+                {
+                case 1:
+                    printf("Enter new Name: ");
+                    fgets(patientArray[i].name, sizeof(patientArray[i].name), stdin);
+                    patientArray[i].name[strcspn(patientArray[i].name, "\n")] = 0;
+                    break;
+                case 2:
+                    printf("Enter new Age: ");
+                    scanf("%d", &patientArray[i].age);
+                    getchar();
+                    break;
+                case 3:
+                    printf("Enter new Gender: ");
+                    fgets(patientArray[i].gender, sizeof(patientArray[i].gender), stdin);
+                    patientArray[i].gender[strcspn(patientArray[i].gender, "\n")] = 0;
+                    break;
+                case 4:
+                    printf("Enter new Disease: ");
+                    fgets(patientArray[i].disease, sizeof(patientArray[i].disease), stdin);
+                    patientArray[i].disease[strcspn(patientArray[i].disease, "\n")] = 0;
+                    break;
+                case 5:
+                    printf("Enter new Duration of Days: ");
+                    scanf("%d", &patientArray[i].durationOfDays);
+                    getchar();
+                    break;
+                case 6:
+                    printf("Enter new Blood Pressure: ");
+                    scanf("%f", &patientArray[i].bp);
+                    break;
+                case 7:
+                    printf("Enter new Pulse Rate: ");
+                    scanf("%f", &patientArray[i].pulseRate);
+                    break;
+                case 8:
+                    printf("Enter new Medicine Timings: ");
+                    fgets(patientArray[i].medicineTimings, sizeof(patientArray[i].medicineTimings), stdin);
+                    patientArray[i].medicineTimings[strcspn(patientArray[i].medicineTimings, "\n")] = 0;
+                    break;
+                case 9:
+                    printf("Enter new Medicine Quantity: ");
+                    scanf("%d", &patientArray[i].medicineQuantity);
+                    getchar();
+                    break;
+                case 10:
+                    printf("Enter new Doctor Attending: ");
+                    fgets(patientArray[i].doctorAttending, sizeof(patientArray[i].doctorAttending), stdin);
+                    patientArray[i].doctorAttending[strcspn(patientArray[i].doctorAttending, "\n")] = 0;
+                    break;
+                case 11:
+                    printf("Was surgery performed (1 for Yes, 0 for No): ");
+                    scanf("%d", &patientArray[i].surgeryDone);
+                    getchar();
+                    if (patientArray[i].surgeryDone == 0)
+                    {
+                        strcpy(patientArray[i].surgeryName, "None");
+                    }
+                    break;
+                case 12:
+                    if (patientArray[i].surgeryDone)
+                    {
+                        printf("Enter new Surgery Name: ");
+                        fgets(patientArray[i].surgeryName, sizeof(patientArray[i].surgeryName), stdin);
+                        patientArray[i].surgeryName[strcspn(patientArray[i].surgeryName, "\n")] = 0;
+                    }
+                    else
+                    {
+                        printf("No surgery was performed. Cannot update Surgery Name.\n");
+                    }
+                    break;
+                default:
+                    printf("Invalid choice. Please try again.\n");
+                }
+
+                printf("Do you want to update another field? (1 for Yes, 0 for No): ");
+                scanf("%d", &choice);
+                getchar();
+
+            } while (choice == 1);
+
+            break;
+        }
+    }
+
+    if (found)
+    {
+        fp = fopen("patients.txt", "w");
+        for (int i = 0; i < patientCount; i++)
+        {
+            fprintf(fp, "Patient ID: %d\nName: %s\nAge: %d\nGender: %s\nDisease: %s\nDuration of Days: %d\nBlood Pressure: %.2f\nPulse Rate: %.2f\nMedicine Timings: %s\nMedicine Quantity: %d\nDoctor Attending: %s\nSurgery Done: %d\nSurgery Name: %s\n\n",
+                    patientArray[i].patientID, patientArray[i].name, patientArray[i].age,
+                    patientArray[i].gender, patientArray[i].disease, patientArray[i].durationOfDays,
+                    patientArray[i].bp, patientArray[i].pulseRate, patientArray[i].medicineTimings,
+                    patientArray[i].medicineQuantity, patientArray[i].doctorAttending,
+                    patientArray[i].surgeryDone, patientArray[i].surgeryName);
+        }
+        fclose(fp);
+        printf("Patient information updated successfully.\n");
+    }
+    else
+    {
+        printf("Patient with ID %d not found.\n", searchID);
+    }
+}
+
+void dischargePatient()
+{
+    struct Patient patientArray[100];
+    int patientCount = 0;
+    int searchID;
+    int found = 0;
+
+    fp = fopen("patients.txt", "r");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    while (fscanf(fp, "Patient ID: %d\nName: %[^\n]\nAge: %d\nGender: %[^\n]\nDisease: %[^\n]\nDuration of Days: %d\nBlood Pressure: %f\nPulse Rate: %f\nMedicine Timings: %[^\n]\nMedicine Quantity: %d\nDoctor Attending: %[^\n]\nSurgery Done: %d\nSurgery Name: %[^\n]\n\n",
+                  &patientArray[patientCount].patientID, patientArray[patientCount].name,
+                  &patientArray[patientCount].age, patientArray[patientCount].gender,
+                  patientArray[patientCount].disease, &patientArray[patientCount].durationOfDays,
+                  &patientArray[patientCount].bp, &patientArray[patientCount].pulseRate,
+                  patientArray[patientCount].medicineTimings, &patientArray[patientCount].medicineQuantity,
+                  patientArray[patientCount].doctorAttending, &patientArray[patientCount].surgeryDone,
+                  patientArray[patientCount].surgeryName) != EOF)
+    {
+        patientCount++;
+    }
+    fclose(fp);
+
+    printf("Enter Patient ID to discharge: ");
+    scanf("%d", &searchID);
+
+    for (int i = 0; i < patientCount; i++)
+    {
+        if (patientArray[i].patientID == searchID)
+        {
+            found = 1;
+
+            printf("Enter the number of days the patient was admitted: ");
+            int daysadmitted;
+            scanf("%d", &daysadmitted);
+
+            float roomcharge = 4000;
+            float medicinecharge = 2000;
+            float healthtaxrate = 0.10;
+            float subtotal = (roomcharge * daysadmitted) + medicinecharge;
+            float tax = subtotal * healthtaxrate;
+            float totalBill = subtotal + tax;
+
+            printf("Bill Details for Patient ID: %d\n", searchID);
+            printf("Admission Charges: %.2f per day x %d days = %.2f\n", roomcharge, daysadmitted, roomcharge * daysadmitted);
+            printf("Medicine Charges: %.2f\n", medicinecharge);
+            printf("Subtotal: %.2f\n", subtotal);
+            printf("Health Tax (10%%): %.2f\n", tax);
+            printf("Total Bill: Rs. %.2f\n", totalBill);
+
+            for (int j = i; j < patientCount - 1; j++)
+            {
+                patientArray[j] = patientArray[j + 1];
+            }
+            patientCount--;
+            break;
+        }
+    }
+
+    if (found)
+    {
+        fp = fopen("patients.txt", "w");
+        if (fp == NULL)
+        {
+            printf("Error opening file for writing.\n");
+            return;
+        }
+
+        for (int i = 0; i < patientCount; i++)
+        {
+            fprintf(fp, "Patient ID: %d\nName: %s\nAge: %d\nGender: %s\nDisease: %s\nDuration of Days: %d\nBlood Pressure: %.2f\nPulse Rate: %.2f\nMedicine Timings: %s\nMedicine Quantity: %d\nDoctor Attending: %s\nSurgery Done: %d\nSurgery Name: %s\n\n",
+                    patientArray[i].patientID, patientArray[i].name, patientArray[i].age,
+                    patientArray[i].gender, patientArray[i].disease, patientArray[i].durationOfDays,
+                    patientArray[i].bp, patientArray[i].pulseRate, patientArray[i].medicineTimings,
+                    patientArray[i].medicineQuantity, patientArray[i].doctorAttending,
+                    patientArray[i].surgeryDone, patientArray[i].surgeryName);
+        }
+        fclose(fp);
+        printf("Patient discharged successfully.\n");
+    }
+    else
+    {
+        printf("Patient with ID %d not found.\n", searchID);
+    }
+}
+
+void assignDoctorToPatient()
+{
+    int foundPatient = 0;
+    int doctorFound = 0;
+
+    fp = fopen("patients.txt", "r+");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    printf("Enter Patient ID to assign doctor: ");
+    int patientID;
+    scanf("%d", &patientID);
+
+    while (fscanf(fp, "Patient ID: %d\nName: %[^\n]\nAge: %d\nGender: %[^\n]\nDisease: %[^\n]\nDuration of Days: %d\nBlood Pressure: %f\nPulse Rate: %f\nMedicine Timings: %[^\n]\nMedicine Quantity: %d\nDoctor Attending: %[^\n]\nSurgery Done: %d\nSurgery Name: %[^\n]\n\n",
+                  &patient.patientID, patient.name, &patient.age, patient.gender, patient.disease, &patient.durationOfDays,
+                  &patient.bp, &patient.pulseRate, patient.medicineTimings, &patient.medicineQuantity, patient.doctorAttending,
+                  &patient.surgeryDone, patient.surgeryName) != EOF)
+    {
+        if (patient.patientID == patientID)
+        {
+            foundPatient = 1;
+            break;
+        }
+    }
+
+    if (!foundPatient)
+    {
+        printf("Patient with ID %d not found.\n", patientID);
+        fclose(fp);
+        return;
+    }
+    fp = fopen("doctors.txt", "r+");
+    if (fp == NULL)
+    {
+        printf("File cannot be opened.\n");
+        return;
+    }
+    printf("Enter Doctor ID to assign: ");
+    int doctorID;
+    scanf("%d", &doctorID);
+
+    while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n",
+                  &doctor.doctorID, doctor.name, &doctor.age, doctor.address, doctor.specialization, doctor.contactNumber, &doctor.patientsAttending) != EOF)
+    {
+        if (doctor.doctorID == doctorID)
+        {
+            doctorFound = 1;
+            if (doctor.patientsAttending < 6)
+            {
+                printf("Assigning patient %d to doctor %d...\n", patientID, doctorID);
+                strcpy(patient.doctorAttending, doctor.name);
+                doctor.patientsAttending++;
+
+                fseek(fp, 0, SEEK_SET);
+                while (fscanf(fp, "Patient ID: %d\nName: %[^\n]\nAge: %d\nGender: %[^\n]\nDisease: %[^\n]\nDuration of Days: %d\nBlood Pressure: %.2f\nPulse Rate: %.2f\nMedicine Timings: %[^\n]\nMedicine Quantity: %d\nDoctor Attending: %[^\n]\nSurgery Done: %d\nSurgery Name: %[^\n]\n\n",
+                              &patient.patientID, patient.name, &patient.age, patient.gender, patient.disease, &patient.durationOfDays,
+                              &patient.bp, &patient.pulseRate, patient.medicineTimings, &patient.medicineQuantity, patient.doctorAttending,
+                              &patient.surgeryDone, patient.surgeryName) != EOF)
+                {
+                    if (patient.patientID == patientID)
+                    {
+                        fprintf(fp, "Patient ID: %d\nName: %s\nAge: %d\nGender: %s\nDisease: %s\nDuration of Days: %d\nBlood Pressure: %.2f\nPulse Rate: %.2f\nMedicine Timings: %s\nMedicine Quantity: %d\nDoctor Attending: %s\nSurgery Done: %d\nSurgery Name: %s\n\n",
+                                patient.patientID, patient.name, patient.age, patient.gender, patient.disease, patient.durationOfDays,
+                                patient.bp, patient.pulseRate, patient.medicineTimings, patient.medicineQuantity, patient.doctorAttending,
+                                patient.surgeryDone, patient.surgeryName);
+                    }
+                }
+
+                fseek(fp, 0, SEEK_SET);
+                while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n",
+                              &doctor.doctorID, doctor.name, &doctor.age, doctor.address, doctor.specialization, doctor.contactNumber, &doctor.patientsAttending) != EOF)
+                {
+                    if (doctor.doctorID == doctorID)
+                    {
+                        doctor.patientsAttending++;
+                    }
+                    fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n",
+                            doctor.doctorID, doctor.name, doctor.age, doctor.address, doctor.specialization, doctor.contactNumber, doctor.patientsAttending);
+                }
+
+                printf("Patient assigned to doctor successfully.\n");
+                break;
+            }
+            else
+            {
+                printf("Doctor %d has reached the maximum number of patients.\n", doctorID);
+                fclose(fp);
+                return;
+            }
+        }
+    }
+
+    if (!doctorFound)
+    {
+        printf("Doctor with ID %d not found.\n", doctorID);
+    }
+
+    fclose(fp);
+}
+
 void adminpanel(int choice)
 {
 
     printf("\n1. Doctor Records Management\n");
     printf("2. Patient Records Management\n");
     printf("3. Pharmacy Medicine Stock Management\n");
-    printf("4. Back to Main Menu\n");
+    printf("4. Daily Report Generator\n");
+    printf("5. Back to Main Menu\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
     switch (choice)
@@ -76,6 +822,9 @@ void adminpanel(int choice)
         pharmacymenu(choice);
         break;
     case 4:
+        generatedailyreport();
+        break;
+    case 5:
         break;
     default:
         printf("Invalid choice.\n");
@@ -104,7 +853,7 @@ void doctormenu(int doctorchoice)
             updateDoctor();
             break;
         case 3:
-            viewDoctors();
+            readDoctors();
             break;
         case 4:
             deleteDoctor();
@@ -130,7 +879,7 @@ void patientmenu(int patientchoice)
         printf("1. Add Patient\n");
         printf("2. Update Patient\n");
         printf("3. View Patients\n");
-        printf("4. Delete Patient\n");
+        printf("4. Discharge Patient and Generate Bill\n");
         printf("5. Assign Doctor to Patient\n");
         printf("6. Log out and return to Main Menu\n");
         printf("Enter your choice: ");
@@ -145,10 +894,10 @@ void patientmenu(int patientchoice)
             updatePatient();
             break;
         case 3:
-            viewPatients();
+            readPatients();
             break;
         case 4:
-            deletePatient();
+            dischargePatient();
             break;
         case 5:
             assignDoctorToPatient();
@@ -202,26 +951,30 @@ void addstock()
     printf("Item Added Successfully.\n");
 }
 
-void viewstock() {
+void viewstock()
+{
     fp = fopen("Pharmacy.txt", "r");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         perror("Error opening file");
         return;
     }
 
     printf("ID | Name           | Type           | Quantity | Price   | Manufacturer\n");
     printf("--------------------------------------------------------------------------\n");
-    while (fscanf(fp, "%d %s %s %d %f %s", 
-                  &item.id, item.name, item.type, 
-                  &item.quantity, &item.price, item.manufacturer) != EOF) {
-        printf("%d | %-15s | %-15s | %8d | %7.2f | %-15s\n", 
-               item.id, item.name, item.type, 
+    while (fscanf(fp, "%d %s %s %d %f %s",
+                  &item.id, item.name, item.type,
+                  &item.quantity, &item.price, item.manufacturer) != EOF)
+    {
+        printf("%d | %-15s | %-15s | %8d | %7.2f | %-15s\n",
+               item.id, item.name, item.type,
                item.quantity, item.price, item.manufacturer);
     }
     fclose(fp);
 }
 
-void dispensestock() {
+void dispensestock()
+{
     viewstock();
     int itemID, quantity;
     float totalPrice;
@@ -234,7 +987,8 @@ void dispensestock() {
     scanf("%d", &quantity);
 
     fp = fopen("Pharmacy.txt", "r");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         printf("No records found.\n");
         return;
     }
@@ -242,18 +996,22 @@ void dispensestock() {
     struct pharmacyitem items[100];
     int count = 0;
 
-    while (fscanf(fp, "%d %s %s %d %f %s", 
-                  &items[count].id, items[count].name, items[count].type, 
-                  &items[count].quantity, &items[count].price, items[count].manufacturer) == 6) {
+    while (fscanf(fp, "%d %s %s %d %f %s",
+                  &items[count].id, items[count].name, items[count].type,
+                  &items[count].quantity, &items[count].price, items[count].manufacturer) == 6)
+    {
         count++;
     }
 
     fclose(fp);
 
-    for (int i = 0; i < count; i++) {
-        if (items[i].id == itemID) {
+    for (int i = 0; i < count; i++)
+    {
+        if (items[i].id == itemID)
+        {
             found = 1;
-            if (items[i].quantity < quantity) {
+            if (items[i].quantity < quantity)
+            {
                 printf("Not enough stock available!\n");
                 return;
             }
@@ -265,60 +1023,70 @@ void dispensestock() {
         }
     }
 
-    if (!found) {
+    if (!found)
+    {
         printf("Item not found!\n");
         return;
     }
 
     fp = fopen("Pharmacy.txt", "w");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         printf("Error opening Pharmacy.txt for writing.\n");
         return;
     }
 
-    for (int i = 0; i < count; i++) {
-        fprintf(fp, "%d %s %s %d %.2f %s\n", 
-                items[i].id, items[i].name, items[i].type, 
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(fp, "%d %s %s %d %.2f %s\n",
+                items[i].id, items[i].name, items[i].type,
                 items[i].quantity, items[i].price, items[i].manufacturer);
     }
 
     fclose(fp);
 }
 
-void autoreorderstock() {
+void autoreorderstock()
+{
     int reorderunits = 50;
     struct pharmacyitem items[100];
     int count = 0;
 
     fp = fopen("Pharmacy.txt", "r");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         printf("Error opening Pharmacy.txt\n");
         return;
     }
 
-    while (fscanf(fp, "%d %s %s %d %f %s", 
-                  &items[count].id, items[count].name, items[count].type, 
-                  &items[count].quantity, &items[count].price, items[count].manufacturer) == 6) {
+    while (fscanf(fp, "%d %s %s %d %f %s",
+                  &items[count].id, items[count].name, items[count].type,
+                  &items[count].quantity, &items[count].price, items[count].manufacturer) == 6)
+    {
         count++;
     }
 
     fclose(fp);
 
-    for (int i = 0; i < count; i++) {
-        if (items[i].quantity < reorderunits) {
+    for (int i = 0; i < count; i++)
+    {
+        if (items[i].quantity < reorderunits)
+        {
             items[i].quantity += 50;
         }
     }
 
     fp = fopen("Pharmacy.txt", "w");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
         printf("Error opening Pharmacy.txt for writing.\n");
         return;
     }
 
-    for (int i = 0; i < count; i++) {
-        fprintf(fp, "%d %s %s %d %.2f %s\n", 
-                items[i].id, items[i].name, items[i].type, 
+    for (int i = 0; i < count; i++)
+    {
+        fprintf(fp, "%d %s %s %d %.2f %s\n",
+                items[i].id, items[i].name, items[i].type,
                 items[i].quantity, items[i].price, items[i].manufacturer);
     }
 
@@ -336,8 +1104,8 @@ void generatebill()
     printf("Enter the quantity: ");
     scanf("%d", &quantity);
 
-    fp= fopen("Pharmacy.txt","r");
-    if (fp==NULL)
+    fp = fopen("Pharmacy.txt", "r");
+    if (fp == NULL)
     {
         printf("Error opening file");
         return;
@@ -397,7 +1165,7 @@ void pharmacymenu(int choice)
             autoreorderstock();
             break;
         case 4:
-            generateBill();
+            generatebill();
             autoreorderstock();
             break;
         case 5:
@@ -421,15 +1189,15 @@ int adminvalidation(char *username, char *password)
     {
         if (strcmp(username, admin.username) == 0 && strcmp(password, admin.password) == 0)
         {
-            printf("Admin login successful, welcome %s\n\n!", admin.username);
+            printf("Admin login successful, welcome %s!\n\n", admin.username);
             fclose(fp);
             return 1;
+            break;
         }
         else
             printf("Wrong username or password. Access denied.\n\n");
-    }
+    }       return 0;
     fclose(fp);
-    return 0;
 }
 
 int doesuserexist(char *username)
@@ -568,7 +1336,7 @@ int loginportal()
     if (fp == NULL)
     {
         printf("Error: Unable to open Users.txt.\n");
-        return;
+        return 1;
     }
     printf("Enter job role (doctor/nurse): ");
     scanf("%s", user.job);
@@ -603,7 +1371,7 @@ int adminlogin()
     if (fp == NULL)
     {
         printf("Error: Unable to open Admin.txt.\n");
-        return;
+        return 1;
     }
     printf("Enter username: ");
     scanf("%s", entered.username);
@@ -631,32 +1399,10 @@ int adminlogin()
 int main()
 {
     int choice, adminchoice, patientchoice;
-    FILE *doctorFile = fopen("doctors.txt", "r+");
-    FILE *patientFile = fopen("patients.txt", "r+");
-
-    if (!doctorFile)
-    {
-        doctorFile = fopen("doctors.txt", "w+");
-        if (!doctorFile)
-        {
-            printf("Error creating doctors file!\n");
-            return 1;
-        }
-    }
-
-    if (!patientFile)
-    {
-        patientFile = fopen("patients.txt", "w+");
-        if (!patientFile)
-        {
-            printf("Error creating patients file!\n");
-            return 1;
-        }
-    }
-
     while (1)
-    {
-        printf("=== San Jose St. Bonaventure's Hospital Management System ===\n");
+    {   printf("----------------------------------------\n");
+        printf("=== Shaukat Khanum Memorial Hospital ===\n");
+        printf("----------------------------------------\n");
         printf("1. Admin Login Portal\n");
         printf("2. User Login Portal\n");
         printf("3. Admin Signup\n");
@@ -668,19 +1414,21 @@ int main()
         switch (choice)
         {
         case 1:
-            if(adminlogin())
-            adminpanel(choice);
-            else printf("Invalid username or password. Access denied.\n");
+            if (adminlogin())
+                adminpanel(choice);
+            else
+                printf("Invalid username or password. Access denied.\n");
             break;
 
         case 2:
-            if(loginportal())
+            if (loginportal())
             {
-            patientmenu(patientchoice);
-            printf("Enter your choice: ");
-            scanf("%d", &patientchoice);
+                patientmenu(patientchoice);
+                printf("Enter your choice: ");
+                scanf("%d", &patientchoice);
             }
-            else printf("Invalid username or password. Access denied.\n");
+            else
+                printf("Invalid username or password. Access denied.\n");
             break;
 
         case 3:
@@ -693,16 +1441,11 @@ int main()
 
         case 5:
             printf("Exiting the program. Goodbye!\n");
-            fclose(doctorFile);
-            fclose(patientFile);
             return 0;
 
         default:
             printf("Invalid choice. Please try again.\n");
         }
     }
-    rewind(doctorFile);
-    rewind(patientFile);
-    fclose(doctorFile);
-    fclose(patientFile);
+    return 0;
 }

@@ -1,0 +1,14 @@
+Patient ID: 2
+Name: naheel rizvi
+Age: 25
+Gender: M
+Disease: lung cancer
+Duration of Days: 50
+Blood Pressure: 110.85
+Pulse Rate: 120.00
+Medicine Timings: 6PM
+Medicine Quantity: 1
+Doctor Attending: doctor fizza
+Surgery Done: 1
+Surgery Name: lung transplant
+
