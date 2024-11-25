@@ -1,24 +1,31 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 struct Doctor {
     int doctorID;
     char name[100];
     int age;
-    char address[100];
-    char specialization[50];
+    char address[200];
+    char specialization[100];
     char contactNumber[20];
-    int patientsAttending;
+    int patientsAttending;  // Number of patients the doctor is attending to
 };
 
-void addDoctor(FILE *file) {
-    struct Doctor doctor;
+FILE *fp;
+struct Doctor doctor;
+
+void addDoctor() {
+    fp = fopen("doctors.txt", "a");
+    if (fp == NULL) {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
     printf("Enter Doctor ID: ");
-    scanf("%d", & doctor.doctorID);
+    scanf("%d", &doctor.doctorID);
     getchar();
 
-    printf("Enter Doctor's Name: ");
+    printf("Enter Name: ");
     fgets(doctor.name, sizeof(doctor.name), stdin);
     doctor.name[strcspn(doctor.name, "\n")] = 0;
 
@@ -34,126 +41,226 @@ void addDoctor(FILE *file) {
     fgets(doctor.specialization, sizeof(doctor.specialization), stdin);
     doctor.specialization[strcspn(doctor.specialization, "\n")] = 0;
 
-    printf("Enter Contact Number(+92-000-0000000): "); 
-    fgets(doctor.contactNumber, sizeof(doctor.contactNumber), stdin);  
-    doctor.contactNumber[strcspn(doctor.contactNumber, "\n")] = 0;  
+    printf("Enter Contact Number: ");
+    fgets(doctor.contactNumber, sizeof(doctor.contactNumber), stdin);
+    doctor.contactNumber[strcspn(doctor.contactNumber, "\n")] = 0;
 
     printf("Enter Number of Patients Attending: ");
     scanf("%d", &doctor.patientsAttending);
 
-    fseek(file, 0, SEEK_END);
-    fwrite(&doctor, sizeof(struct Doctor), 1, file);
+    fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n", 
+            doctor.doctorID, doctor.name, doctor.age, doctor.address, 
+            doctor.specialization, doctor.contactNumber, doctor.patientsAttending);
+
+    fclose(fp);
 }
 
-void updateDoctor(FILE *file) {
-    struct Doctor doctor;
-    int doctorID, found = 0;
+void readDoctors() {
+    fp = fopen("doctors.txt", "r");
+    if (fp == NULL) {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);  // Print the content of each line in the file
+    }
+
+    fclose(fp);
+}
+
+void updateDoctor() {
+    FILE *fp;
+    struct Doctor doctorArray[100];
+    int doctorCount = 0;
+    int searchID;
+    int found = 0;
+    int choice;
+
+    fp = fopen("doctors.txt", "r+");
+    if (fp == NULL) {
+        printf("File cannot be opened.\n");
+        return;
+    }
+
+    while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n", 
+            &doctorArray[doctorCount].doctorID, doctorArray[doctorCount].name, 
+            &doctorArray[doctorCount].age, doctorArray[doctorCount].address, 
+            doctorArray[doctorCount].specialization, doctorArray[doctorCount].contactNumber, 
+            &doctorArray[doctorCount].patientsAttending) != EOF) {
+        doctorCount++;
+    }
+
     printf("Enter Doctor ID to update: ");
-    scanf("%d", &doctorID);
+    scanf("%d", &searchID);
     getchar();
 
-    FILE *tempFile = fopen("temp.dat", "wb");
-    if (!tempFile) {
-        printf("Error opening file!\n");
-        return;
-    }
+    for (int i = 0; i < doctorCount; i++) {
+        if (doctorArray[i].doctorID == searchID) {
+            printf("Doctor found! Updating information...\n");
 
-    rewind(file);
-    while (fread(&doctor, sizeof(struct Doctor), 1, file)) {
-        if (doctor.doctorID == doctorID) {
+            do {
+                printf("\nWhich field do you want to update?\n");
+                printf("1. Name\n");
+                printf("2. Age\n");
+                printf("3. Address\n");
+                printf("4. Specialization\n");
+                printf("5. Contact Number\n");
+                printf("6. Number of Patients Attending\n");
+                printf("Enter your choice (1-6): ");
+                scanf("%d", &choice);
+                getchar();
+
+                switch(choice) {
+                    case 1:
+                        printf("Enter new Name: ");
+                        fgets(doctorArray[i].name, sizeof(doctorArray[i].name), stdin);
+                        doctorArray[i].name[strcspn(doctorArray[i].name, "\n")] = 0;
+                        break;
+                    case 2:
+                        printf("Enter new Age: ");
+                        scanf("%d", &doctorArray[i].age);
+                        getchar();
+                        break;
+                    case 3:
+                        printf("Enter new Address: ");
+                        fgets(doctorArray[i].address, sizeof(doctorArray[i].address), stdin);
+                        doctorArray[i].address[strcspn(doctorArray[i].address, "\n")] = 0;
+                        break;
+                    case 4:
+                        printf("Enter new Specialization: ");
+                        fgets(doctorArray[i].specialization, sizeof(doctorArray[i].specialization), stdin);
+                        doctorArray[i].specialization[strcspn(doctorArray[i].specialization, "\n")] = 0;
+                        break;
+                    case 5:
+                        printf("Enter new Contact Number: ");
+                        fgets(doctorArray[i].contactNumber, sizeof(doctorArray[i].contactNumber), stdin);
+                        doctorArray[i].contactNumber[strcspn(doctorArray[i].contactNumber, "\n")] = 0;
+                        break;
+                    case 6:
+                        printf("Enter new Number of Patients Attending: ");
+                        scanf("%d", &doctorArray[i].patientsAttending);
+                        getchar();
+                        break;
+                    default:
+                        printf("Invalid choice. Please try again.\n");
+                        continue;
+                }
+
+                printf("Do you want to update another field? (1 for Yes, 0 for No): ");
+                scanf("%d", &choice);
+                getchar();
+
+            } while (choice == 1);  // If user wants to update another field
+
             found = 1;
-            printf("Enter new Name (current: %s): ", doctor.name);
-            fgets(doctor.name, sizeof(doctor.name), stdin);
-            if (doctor.name[0] == '\n') strcpy(doctor.name, "");
-
-            printf("Enter new Age (current: %d): ", doctor.age);
-            scanf("%d", &doctor.age);
-            getchar();
-
-            printf("Enter new Address (current: %s): ", doctor.address);
-            fgets(doctor.address, sizeof(doctor.address), stdin);
-            if (doctor.address[0] == '\n') strcpy(doctor.address, "");
-
-            printf("Enter new Specialization (current: %s): ", doctor.specialization);
-            fgets(doctor.specialization, sizeof(doctor.specialization), stdin);
-            if (doctor.specialization[0] == '\n') strcpy(doctor.specialization, "");
-
-            printf("Enter new Contact Details (current: %s): ", doctor.contactNumber);
-            fgets(doctor.contactNumber, sizeof(doctor.contactNumber), stdin);
-            if (doctor.contactNumber[0] == '\n') strcpy(doctor.contactNumber, "");
-
-            printf("Enter new Number of Patients Attending (current: %d): ", doctor.patientsAttending);
-            scanf("%d", &doctor.patientsAttending);
+            break;
         }
-        fwrite(&doctor, sizeof(struct Doctor), 1, tempFile);
     }
 
     if (!found) {
-        printf("Doctor not found.\n");
+        printf("Doctor with ID %d not found.\n", searchID);
+    } else {
+
+        freopen("doctors.txt", "w", fp);
+        for (int i = 0; i < doctorCount; i++) {
+            fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n", 
+                    doctorArray[i].doctorID, doctorArray[i].name, doctorArray[i].age, doctorArray[i].address, 
+                    doctorArray[i].specialization, doctorArray[i].contactNumber, doctorArray[i].patientsAttending);
+        }
+        printf("Doctor information updated successfully.\n");
     }
 
-    fclose(file);
-    fclose(tempFile);
-    remove("doctors.dat");
-    rename("temp.dat", "doctors.dat");
-
-    file = fopen("doctors.dat", "rb+");
-    if (!file) {
-        printf("Error reopening file!\n");
-    }
+    fclose(fp);
 }
 
-void viewDoctors(FILE *file) {
-    struct Doctor doctor;
-    rewind(file);
-    while (fread(&doctor, sizeof(struct Doctor), 1, file)) {
-        printf("Doctor ID: %d\n", doctor.doctorID);
-        printf("Name: %s\n", doctor.name);
-        printf("Age: %d\n", doctor.age);
-        printf("Address: %s\n", doctor.address);
-        printf("Specialization: %s\n", doctor.specialization);
-        printf("Contact Number: %d\n", doctor.contactNumber);
-        printf("Patients Attending: %d\n", doctor.patientsAttending);
-        printf("------------------------------\n");
-    }
-}
+void deleteDoctor() {
+    FILE *fp;
+    struct Doctor doctorArray[100];
+    int doctorCount = 0;
+    int searchID;
+    int found = 0;
 
-void deleteDoctor(FILE *file) {
-    struct Doctor doctor;
-    int doctorID, found = 0;
-    printf("Enter Doctor ID to delete: ");
-    scanf("%d", &doctorID);
-
-    FILE *tempFile = fopen("temp.dat", "wb");
-    if (!tempFile) {
-        printf("Error opening temporary file!\n");
+    fp = fopen("doctors.txt", "r+");
+    if (fp == NULL) {
+        printf("File cannot be opened.\n");
         return;
     }
 
-    rewind(file);
-    while (fread(&doctor, sizeof(struct Doctor), 1, file)) {
-        if (doctor.doctorID == doctorID && !found) {
-            found = 1;  
-            continue;
+    while (fscanf(fp, "Doctor ID: %d\nName: %[^\n]\nAge: %d\nAddress: %[^\n]\nSpecialization: %[^\n]\nContact Number: %[^\n]\nPatients Attending: %d\n\n", 
+            &doctorArray[doctorCount].doctorID, doctorArray[doctorCount].name, 
+            &doctorArray[doctorCount].age, doctorArray[doctorCount].address, 
+            doctorArray[doctorCount].specialization, doctorArray[doctorCount].contactNumber, 
+            &doctorArray[doctorCount].patientsAttending) != EOF) {
+        doctorCount++;
+    }
+
+    printf("Enter Doctor ID to delete: ");
+    scanf("%d", &searchID);
+
+    for (int i = 0; i < doctorCount; i++) {
+        if (doctorArray[i].doctorID == searchID) {
+            found = 1;
+            for (int j = i; j < doctorCount - 1; j++) {
+                doctorArray[j] = doctorArray[j + 1];
+            }
+            doctorCount--;
+            break;
         }
-        fwrite(&doctor, sizeof(struct Doctor), 1, tempFile);
     }
 
     if (!found) {
-        printf("Doctor not found.\n");
+        printf("Doctor with ID %d not found.\n", searchID);
     } else {
-        printf("Doctor record deleted successfully.\n");
+        freopen("doctors.txt", "w", fp);
+        for (int i = 0; i < doctorCount; i++) {
+            fprintf(fp, "Doctor ID: %d\nName: %s\nAge: %d\nAddress: %s\nSpecialization: %s\nContact Number: %s\nPatients Attending: %d\n\n", 
+                    doctorArray[i].doctorID, doctorArray[i].name, doctorArray[i].age, doctorArray[i].address, 
+                    doctorArray[i].specialization, doctorArray[i].contactNumber, doctorArray[i].patientsAttending);
+        }
+        printf("Doctor deleted successfully.\n");
     }
 
-    fclose(file);
-    fclose(tempFile);
-    remove("doctors.dat");
-    rename("temp.dat", "doctors.dat");
+    fclose(fp);
+}
 
-    file = fopen("doctors.dat", "rb+");
-    if (!file) {
-        printf("Error reopening file!\n");
-    }
+
+int main() {
+    int choice;
+
+    do {
+        printf("Menu:\n");
+        printf("1. Add Doctor\n");
+        printf("2. View All Doctors\n");
+        printf("3. Update Doctor\n");
+        printf("4. Delete Doctor\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch (choice) {
+            case 1:
+                addDoctor();
+                break;
+            case 2:
+                readDoctors();
+                break;
+            case 3:
+                updateDoctor();
+                break;
+            case 4:
+                deleteDoctor();
+                break;
+            case 5:
+                printf("Exiting program...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
 }
 
 
