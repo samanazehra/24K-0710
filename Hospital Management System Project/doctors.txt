@@ -1,0 +1,32 @@
+Doctor ID: 1
+Name: saahil
+Age: 20
+Address: nursery chowk
+Specialization: neurologist
+Contact Number: 03333025215
+Patients Attending: 6
+
+Doctor ID: 2
+Name: manahil
+Age: 19
+Address: nata khan
+Specialization: endocrinologist
+Contact Number: 03248294367
+Patients Attending: 3
+
+Doctor ID: 3
+Name: aashir
+Age: 25
+Address: quaidabad
+Specialization: cardiologist
+Contact Number: 0327482384
+Patients Attending: 4
+
+Doctor ID: 4
+Name: fizza batool
+Age: 18
+Address: soldier bazaar
+Specialization: gynaecologist
+Contact Number: 03004704146
+Patients Attending: 3
+

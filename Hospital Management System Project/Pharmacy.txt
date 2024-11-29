@@ -6,3 +6,4 @@
 6 brufen med 80 20.00 abbott
 7 rijix med 70 20.00 abbott
 8 caflam med 70 40.00 sys
+123 panadol tablet 90 10.50 pharmacy

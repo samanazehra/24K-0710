@@ -95,7 +95,7 @@ void generatedailyreport()
             totalPatientsDischarged++;
         }
 
-        if (strcmp(dischargeDate, "00-00-0000") == 0 || strlen(dischargeDate) == 0)
+        if (strlen(dischargeDate) == 0)
         {
             totalPatientsInHospital++;
         }
@@ -1194,9 +1194,11 @@ int adminvalidation(char *username, char *password)
             return 1;
             break;
         }
-        else
+        else {
             printf("Wrong username or password. Access denied.\n\n");
-    }       return 0;
+           return 0;
+        }
+    }
     fclose(fp);
 }
 
@@ -1229,7 +1231,7 @@ int doesadminexist(char *username)
     {
         return 0;
     }
-    while (fscanf(fp, "%s %*s", tem.username) != EOF)
+    while (fscanf(fp, "%s", tem.username) != EOF)
     {
         if (strcmp(username, tem.username) == 0)
         {
