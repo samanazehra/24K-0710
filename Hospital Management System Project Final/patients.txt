@@ -1,0 +1,28 @@
+Patient ID: 1
+Name: naheel rizvi
+Age: 25
+Gender: M
+Disease: lung cancer
+Duration of Days: 50
+Blood Pressure: 110.85
+Pulse Rate: 120.00
+Medicine Timings: 6PM
+Medicine Quantity: 1
+Doctor Attending: doctor fizza
+Surgery Done: 1
+Surgery Name: lung transplant
+
+Patient ID: 2
+Name: samana
+Age: 19
+Gender: F
+Disease: appendicitis
+Duration of Days: 15
+Blood Pressure: 115.80
+Pulse Rate: 90.00
+Medicine Timings: 6AM and 6PM
+Medicine Quantity: 2
+Doctor Attending: doctor fizza batool
+Surgery Done: 1
+Surgery Name: laparotomy
+

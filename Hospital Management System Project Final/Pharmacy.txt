@@ -1,0 +1,9 @@
+1 panadol med 70 300.00 sys
+2 saniplast med 500 200.00 hamdard
+3 zyrtec med 70 100.00 abbott
+4 gavisco med 50 20.00 sys
+5 gava med 90 20.00 sys
+6 brufen med 80 20.00 abbott
+7 rijix med 70 20.00 abbott
+8 caflam med 70 40.00 sys
+123 panadol tablet 90 10.50 pharmacy
