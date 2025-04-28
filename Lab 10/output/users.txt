@@ -1,0 +1,2 @@
+U1,Linus,Torvalds,Finland,linus@email.com
+U2,Samana,Zehra,UK,ssamanazr@email.com
